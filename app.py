@@ -1,10 +1,13 @@
 from flask import Flask, jsonify
+from flask_cors import CORS
 from config import Config
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    
+    CORS(app, supports_credentials=True, origins=["*"])
 
     from routes.auth_routes import auth_bp
     from routes.product_routes import product_bp
