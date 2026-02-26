@@ -1,12 +1,13 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
 from config import Config
+import os
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
-    
+
     CORS(app, supports_credentials=True, origins=["*"])
 
     from routes.auth_routes import auth_bp
@@ -23,6 +24,14 @@ def create_app():
     app.register_blueprint(analytics_bp)
     app.register_blueprint(category_bp)
     app.register_blueprint(supplier_bp)
+
+    @app.route("/")
+    def index():
+        return send_from_directory("templates", "login.html")
+
+    @app.route("/<path:filename>")
+    def serve_template(filename):
+        return send_from_directory("templates", filename)
 
     @app.errorhandler(404)
     def not_found(e):
