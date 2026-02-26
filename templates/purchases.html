@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoreTrack | Purchases</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0e1a; color: #e0e6f0; font-family: 'Segoe UI', sans-serif; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #0d1321; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        .sidebar-brand { padding: 28px 24px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 12px; }
+        .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #1a73e8, #0d47a1); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .brand-icon i { color: white; font-size: 18px; }
+        .sidebar-brand h2 { font-size: 18px; font-weight: 700; color: white; }
+        .sidebar-nav { padding: 20px 12px; flex: 1; }
+        .nav-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: #3a5070; padding: 8px 12px; margin-top: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: 10px; color: #6c8ebf; text-decoration: none; font-size: 14px; font-weight: 500; margin-bottom: 2px; transition: all 0.2s; cursor: pointer; }
+        .nav-item:hover { background: rgba(26,115,232,0.1); color: #7eb3ff; }
+        .nav-item.active { background: rgba(26,115,232,0.15); color: #1a73e8; }
+        .nav-item i { font-size: 17px; width: 20px; }
+        .sidebar-footer { padding: 16px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+        .user-info { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(255,255,255,0.04); }
+        .user-avatar { width: 34px; height: 34px; background: linear-gradient(135deg, #1a73e8, #0d47a1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; color: white; font-weight: 600; }
+        .user-name { font-size: 13px; font-weight: 600; color: #c0d0e0; }
+        .user-role { font-size: 11px; color: #4a6080; }
+        .main-content { margin-left: 260px; flex: 1; padding: 30px; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+        .page-title { font-size: 22px; font-weight: 700; color: white; }
+        .page-subtitle { font-size: 13px; color: #4a6080; margin-top: 2px; }
+        .btn-primary-custom { background: linear-gradient(135deg, #1a73e8, #0d47a1); border: none; color: white; padding: 10px 20px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+        .card-dark { background: #0d1321; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+        .card-title { font-size: 15px; font-weight: 600; color: white; margin-bottom: 20px; }
+        .form-label-dark { color: #a0b4c8; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; display: block; }
+        .form-control-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: white; padding: 10px 14px; width: 100%; font-size: 14px; margin-bottom: 16px; }
+        .form-control-dark:focus { outline: none; border-color: #1a73e8; }
+        .form-control-dark option { background: #0d1321; }
+        .table-custom { width: 100%; border-collapse: collapse; }
+        .table-custom th { color: #4a6080; font-size: 11px; text-transform: uppercase; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .table-custom td { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 14px; color: #c0d0e0; }
+        .item-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 12px; }
+        .btn-remove { background: rgba(239,68,68,0.1); border: none; color: #ef4444; padding: 10px 14px; border-radius: 8px; cursor: pointer; }
+        .btn-add-item { background: rgba(26,115,232,0.1); border: 1px dashed rgba(26,115,232,0.3); color: #1a73e8; padding: 10px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 4px; font-size: 14px; }
+        .total-box { background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.2); border-radius: 10px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
+        .total-label { color: #6c8ebf; font-size: 14px; }
+        .total-value { color: #f97316; font-size: 22px; font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="bi bi-box-seam"></i></div>
+        <h2>StoreTrack</h2>
+    </div>
+    <nav class="sidebar-nav">
+        <div class="nav-label">Main</div>
+        <a class="nav-item" href="dashboard.html"><i class="bi bi-grid"></i> Dashboard</a>
+        <a class="nav-item" href="products.html"><i class="bi bi-box"></i> Products</a>
+        <a class="nav-item" href="sales.html"><i class="bi bi-cart"></i> Sales</a>
+        <a class="nav-item active" href="purchases.html"><i class="bi bi-truck"></i> Purchases</a>
+        <div class="nav-label">Reports</div>
+        <a class="nav-item" href="analytics.html"><i class="bi bi-bar-chart"></i> Analytics</a>
+        <a class="nav-item" href="lowstock.html"><i class="bi bi-exclamation-triangle"></i> Low Stock</a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar" id="userAvatar">A</div>
+            <div>
+                <div class="user-name" id="userName">Admin</div>
+                <div class="user-role" id="userRole">Administrator</div>
+            </div>
+        </div>
+        <a class="nav-item mt-2" onclick="logout()" style="color:#ef4444"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="page-header">
+        <div>
+            <div class="page-title">Purchases</div>
+            <div class="page-subtitle">Record stock purchases from suppliers</div>
+        </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+
+        <!-- New Purchase Form -->
+        <div class="card-dark">
+            <div class="card-title"><i class="bi bi-truck" style="color:#f97316"></i> New Purchase</div>
+
+            <label class="form-label-dark">Supplier</label>
+            <select class="form-control-dark" id="supplierId"></select>
+
+            <label class="form-label-dark">Purchase Date</label>
+            <input type="date" class="form-control-dark" id="purchaseDate">
+
+            <label class="form-label-dark">Items</label>
+            <div id="purchaseItems"></div>
+
+            <button class="btn-add-item" onclick="addItem()">
+                <i class="bi bi-plus-circle"></i> Add Item
+            </button>
+
+            <div class="total-box">
+                <span class="total-label">Total Amount</span>
+                <span class="total-value" id="totalAmount">₹0</span>
+            </div>
+
+            <button class="btn-primary-custom mt-3" style="width:100%; justify-content:center;" onclick="submitPurchase()">
+                <i class="bi bi-check-circle"></i> Record Purchase
+            </button>
+        </div>
+
+        <!-- Purchase History -->
+        <div class="card-dark">
+            <div class="card-title"><i class="bi bi-clock-history" style="color:#f97316"></i> Recent Purchases</div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Supplier</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="purchasesTable">
+                    <tr><td colspan="3" style="text-align:center; color:#4a6080; padding:20px;">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'http://127.0.0.1:5000';
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) window.location.href = 'login.html';
+
+    document.getElementById('userName').textContent = user?.username || 'User';
+    document.getElementById('userRole').textContent = user?.role || 'Staff';
+    document.getElementById('userAvatar').textContent = (user?.username || 'U')[0].toUpperCase();
+    document.getElementById('purchaseDate').value = new Date().toISOString().split('T')[0];
+
+    let products = [];
+    let itemCount = 0;
+
+    async function loadData() {
+        const [prodRes, supRes] = await Promise.all([
+            fetch(`${API}/api/products/?per_page=100`, { credentials: 'include' }),
+            fetch(`${API}/api/suppliers/`, { credentials: 'include' })
+        ]);
+        const prodData = await prodRes.json();
+        const suppliers = await supRes.json();
+        products = prodData.products || [];
+
+        const supSelect = document.getElementById('supplierId');
+        supSelect.innerHTML = suppliers.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+        addItem();
+    }
+
+    async function loadPurchases() {
+        const res = await fetch(`${API}/api/purchases/?per_page=10`, { credentials: 'include' });
+        const data = await res.json();
+        const tbody = document.getElementById('purchasesTable');
+        if (!data.purchases?.length) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:#4a6080; padding:20px;">No purchases yet</td></tr>';
+            return;
+        }
+        tbody.innerHTML = data.purchases.map(p => `
+            <tr>
+                <td>${p.purchase_date}</td>
+                <td>${p.supplier_name}</td>
+                <td style="color:#f97316; font-weight:600;">₹${parseFloat(p.total_amount).toFixed(0)}</td>
+            </tr>
+        `).join('');
+    }
+
+    function addItem() {
+        itemCount++;
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.id = `item-${itemCount}`;
+        div.innerHTML = `
+            <div>
+                <label class="form-label-dark">Product</label>
+                <select class="form-control-dark" onchange="updateTotal()">
+                    ${products.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                </select>
+            </div>
+            <div>
+                <label class="form-label-dark">Qty</label>
+                <input type="number" class="form-control-dark" value="1" min="1" oninput="updateTotal()">
+            </div>
+            <div>
+                <label class="form-label-dark">Cost (₹)</label>
+                <input type="number" class="form-control-dark" value="${products[0]?.cost_price || 0}" oninput="updateTotal()">
+            </div>
+            <div>
+                <label class="form-label-dark">&nbsp;</label>
+                <button class="btn-remove" onclick="removeItem('item-${itemCount}')"><i class="bi bi-x"></i></button>
+            </div>
+        `;
+        document.getElementById('purchaseItems').appendChild(div);
+        updateTotal();
+    }
+
+    function removeItem(id) {
+        document.getElementById(id)?.remove();
+        updateTotal();
+    }
+
+    function updateTotal() {
+        let total = 0;
+        document.querySelectorAll('.item-row').forEach(row => {
+            const inputs = row.querySelectorAll('input');
+            const qty = parseFloat(inputs[0]?.value || 0);
+            const price = parseFloat(inputs[1]?.value || 0);
+            total += qty * price;
+        });
+        document.getElementById('totalAmount').textContent = `₹${total.toFixed(0)}`;
+    }
+
+    async function submitPurchase() {
+        const rows = document.querySelectorAll('.item-row');
+        const items = [];
+
+        rows.forEach(row => {
+            const select = row.querySelector('select');
+            const inputs = row.querySelectorAll('input');
+            items.push({
+                product_id: parseInt(select.value),
+                quantity: parseInt(inputs[0].value),
+                cost_price: parseFloat(inputs[1].value)
+            });
+        });
+
+        if (!items.length) return alert('Add at least one item');
+
+        const res = await fetch(`${API}/api/purchases/`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                supplier_id: parseInt(document.getElementById('supplierId').value),
+                items,
+                purchase_date: document.getElementById('purchaseDate').value
+            })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+            alert('✅ Purchase recorded successfully!');
+            document.getElementById('purchaseItems').innerHTML = '';
+            itemCount = 0;
+            addItem();
+            updateTotal();
+            loadPurchases();
+        } else {
+            alert('❌ ' + (data.error || 'Error recording purchase'));
+        }
+    }
+
+    async function logout() {
+        await fetch(`${API}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+
+    loadData();
+    loadPurchases();
+</script>
+</body>
+</html>
