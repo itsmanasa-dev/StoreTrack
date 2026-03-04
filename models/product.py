@@ -95,7 +95,10 @@ def update(product_id, data):
 
 
 def delete(product_id):
-    with get_db() as (_, cursor):
+    with get_db() as (conn, cursor):
+        # Remove linked records first
+        cursor.execute("DELETE FROM sale_items WHERE product_id = %s", (product_id,))
+        cursor.execute("DELETE FROM purchase_items WHERE product_id = %s", (product_id,))
         cursor.execute("DELETE FROM products WHERE id = %s", (product_id,))
         return cursor.rowcount
 
