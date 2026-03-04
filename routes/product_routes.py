@@ -2,9 +2,20 @@ from flask import Blueprint, request, jsonify
 from models import product as product_model
 from services.auth import login_required, admin_required
 from services.export import export_csv
+from database.db import get_db
 
 product_bp = Blueprint("products", __name__, url_prefix="/api/products")
 
+
+def get_or_create_category(name):
+    name = name.strip()
+    with get_db() as (conn, cursor):
+        cursor.execute("SELECT id FROM categories WHERE name = %s", (name,))
+        row = cursor.fetchone()
+        if row:
+            return row["id"]
+        cursor.execute("INSERT INTO categories (name) VALUES (%s)", (name,))
+        return cursor.lastrowid
 
 def _validate_product(data):
     errors = []
@@ -19,8 +30,8 @@ def _validate_product(data):
             errors.append("selling_price must be >= 0.")
     except (TypeError, ValueError):
         errors.append("cost_price and selling_price must be numeric.")
-    if not data.get("category_id"):
-        errors.append("category_id is required.")
+    if not data.get("category_id") and not data.get("category_name"):
+        errors.append("category is required.")
     return errors
 
 
@@ -60,6 +71,8 @@ def create_product():
     errors = _validate_product(data)
     if errors:
         return jsonify({"errors": errors}), 400
+    if not data.get("category_id") and data.get("category_name"):
+        data["category_id"] = get_or_create_category(data["category_name"])
     product_id = product_model.create(data)
     return jsonify({"id": product_id, "message": "Product created"}), 201
 
@@ -71,6 +84,8 @@ def update_product(product_id):
     errors = _validate_product(data)
     if errors:
         return jsonify({"errors": errors}), 400
+    if not data.get("category_id") and data.get("category_name"):
+        data["category_id"] = get_or_create_category(data["category_name"])
     rows = product_model.update(product_id, data)
     if not rows:
         return jsonify({"error": "Product not found"}), 404
