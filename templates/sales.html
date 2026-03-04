@@ -447,7 +447,7 @@
                 }
                 tbody.innerHTML = data.sales.map(s => `
             <tr>
-                <td>${s.sale_date}</td>
+                ${new Date(s.sale_date).toLocaleDateString('en-IN')}
                 <td style="color:#22c55e;font-weight:600;">₹${parseFloat(s.total_amount).toFixed(0)}</td>
                 <td>${s.created_by_name || 'N/A'}</td>
             </tr>
