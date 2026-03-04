@@ -573,7 +573,8 @@
                 updateTotal();
                 loadSales();
             } else {
-                alert('❌ ' + (data.error || 'Error'));
+                const errMsg = data.error || (data.errors && data.errors.join(', ')) || 'Error recording sale';
+                alert('❌ ' + errMsg);
             }
         }
 
